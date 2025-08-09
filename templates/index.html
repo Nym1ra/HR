@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoHR | Умная система управления персоналом</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --dark: #1e1e2d;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --sidebar-bg: #1a1c23;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        [data-theme="dark"] {
+            --dark: #f8f9fa;
+            --light: #121826;
+            --gray: #adb5bd;
+            --sidebar-bg: #0f1015;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 20px 0;
+            transition: var(--transition);
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo i {
+            background: var(--primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-menu {
+            margin-top: 30px;
+            padding: 0 15px;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        [data-theme="dark"] header {
+            background: #1a1c23;
+        }
+
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-toggle {
+            background: rgba(67,97,238,0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(67,97,238,0.2);
+            transform: rotate(20deg);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding: 30px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] .metric-card {
+            background: rgba(30, 30, 45, 0.95);
+            border-color: rgba(255,255,255,0.05);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .metric-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            opacity: 0.15;
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 10px 0 5px;
+        }
+
+        .metric-title {
+            font-size: 1rem;
+            color: var(--gray);
+        }
+
+        .metric-trend {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--success);
+        }
+
+        .metric-trend.down {
+            color: var(--danger);
+        }
+
+        /* Teams section */
+        .teams-section {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] .team-card {
+            background: rgba(30, 30, 45, 0.95);
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .team-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(67,97,238,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .team-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .team-members {
+            display: flex;
+            margin-left: 10px;
+        }
+
+        .team-member {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+            font-size: 0.8rem;
+            margin-left: -10px;
+            border: 2px solid white;
+        }
+
+        .team-stats {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .team-stat {
+            background: rgba(0,0,0,0.02);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        [data-theme="dark"] .team-stat {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-title {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Employees page */
+        .employees-page {
+            padding: 30px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            position: relative;
+            min-width: 180px;
+        }
+
+        .filter-label {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: white;
+            padding: 0 5px;
+            font-size: 0.85rem;
+            color: var(--gray);
+            z-index: 1;
+        }
+
+        [data-theme="dark"] .filter-label {
+            background: rgba(30, 30, 45, 0.95);
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.7);
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        [data-theme="dark"] .filter-select {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+            color: var(--gray);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .employees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .employee-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .employee-card {
+            background: rgba(30, 30, 45, 0.95);
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .employee-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .employee-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.4rem;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .employee-role {
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .employee-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .employee-stat {
+            background: rgba(0,0,0,0.02);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        [data-theme="dark"] .employee-stat {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .employee-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] .employee-actions {
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger {
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Reports page */
+        .reports-page {
+            padding: 30px;
+        }
+
+        .reports-list {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .reports-list {
+            background: rgba(30, 30, 45, 0.95);
+        }
+
+        .report-item {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 15px;
+        }
+
+        [data-theme="dark"] .report-item {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .report-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(67,97,238,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .report-content {
+            flex: 1;
+        }
+
+        .report-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .report-meta {
+            font-size: 0.9rem;
+            color: var(--gray);
+            display: flex;
+            gap: 15px;
+        }
+
+        .report-action {
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Chat */
+        .chat-box {
+            margin-top: 40px;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        [data-theme="dark"] .chat-container {
+            background: rgba(30, 30, 45, 0.95);
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        [data-theme="dark"] .chat-header {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .chat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(114,9,183,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+        }
+
+        .chat-log {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            background: rgba(0,0,0,0.03);
+            color: var(--dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        [data-theme="dark"] .ai-message {
+            background: rgba(255,255,255,0.07);
+        }
+
+        .chat-input-group {
+            padding: 15px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+        }
+
+        [data-theme="dark"] .chat-input-group {
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.7);
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] .chat-input {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+            color: var(--gray);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Add employee form */
+        .add-employee-form {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        [data-theme="dark"] .add-employee-form {
+            background: rgba(30, 30, 45, 0.95);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.7);
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] .form-control {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+            color: var(--gray);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .submit-btn {
+            grid-column: 1 / -1;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Utility classes */
+        .hidden {
+            display: none;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Salary chart */
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-top: 30px;
+            height: 400px;
+        }
+
+        [data-theme="dark"] .chart-container {
+            background: rgba(30, 30, 45, 0.95);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-brain"></i>
+            <span>NeoHR</span>
+        </div>
+        
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="employees">
+                    <i class="fas fa-users"></i>
+                    <span>Работники</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="archive">
+                    <i class="fas fa-archive"></i>
+                    <span>Архив</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="salary">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Отслеживание зарплат</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-page="reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Репорты</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Настройки</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header>
+            <div class="header-title">Dashboard</div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div>Admin</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Page -->
+        <div class="dashboard" id="dashboard-page">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="metric-value">84</div>
+                    <div class="metric-title">Всего сотрудников</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i> 12% за месяц
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-user-minus"></i>
+                    </div>
+                    <div class="metric-value">7</div>
+                    <div class="metric-title">Уволенные сотрудники</div>
+                    <div class="metric-trend down">
+                        <i class="fas fa-arrow-down"></i> 3% за месяц
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="metric-value">₽9.2M</div>
+                    <div class="metric-title">Общая зарплата</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i> 8% за месяц
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="metric-value">₽128K</div>
+                    <div class="metric-title">Средняя зарплата</div>
+                    <div class="metric-trend">
+                        <i class="fas fa-arrow-up"></i> 5% за месяц
+                    </div>
+                </div>
+            </div>
+            
+            <div class="teams-section">
+                <h2 class="section-title">
+                    <i class="fas fa-layer-group"></i>
+                    Команды
+                </h2>
+                
+                <div class="teams-grid">
+                    <div class="team-card">
+                        <div class="team-header">
+                            <div class="team-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div>
+                                <div class="team-name">Frontend</div>
+                                <div class="team-members">
+                                    <div class="team-member">12</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="team-stats">
+                            <div class="team-stat">
+                                <div class="stat-value">₽1.8M</div>
+                                <div class="stat-title">Зарплата в месяц</div>
+                            </div>
+                            <div class="team-stat">
+                                <div class="stat-value">₽152K</div>
+                                <div class="stat-title">Средняя зарплата</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-header">
+                            <div class="team-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div>
+                                <div class="team-name">Backend</div>
+                                <div class="team-members">
+                                    <div class="team-member">15</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="team-stats">
+                            <div class="team-stat">
+                                <div class="stat-value">₽2.1M</div>
+                                <div class="stat-title">Зарплата в месяц</div>
+                            </div>
+                            <div class="team-stat">
+                                <div class="stat-value">₽140K</div>
+                                <div class="stat-title">Средняя зарплата</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-card">
+                        <div class="team-header">
+                            <div class="team-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div>
+                                <div class="team-name">Mobile</div>
+                                <div class="team-members">
+                                    <div class="team-member">8</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="team-stats">
+                            <div class="team-stat">
+                                <div class="stat-value">₽1.2M</div>
+                                <div class="stat-title">Зарплата в месяц</div>
+                            </div>
+                            <div class="team-stat">
+                                <div class="stat-value">₽150K</div>
+                                <div class="stat-title">Средняя зарплата</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-box">
+                <h2 class="section-title">
+                    <i class="fas fa-robot"></i>
+                    AI HR Ассистент
+                </h2>
+                
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>LLaMA HR Assistant</div>
+                    </div>
+                    
+                    <div id="chat-log" class="chat-log">
+                        <div class="message ai-message">
+                            Привет! Я ваш HR ассистент. Могу помочь с:
+                            <br><br>
+                            • Анализом команды<br>
+                            • Расчетом зарплат<br>
+                            • Подбором кандидатов<br>
+                            • HR аналитикой
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-group">
+                        <input type="text" id="chat-input" class="chat-input" placeholder="Задайте вопрос...">
+                        <button id="chat-send" class="send-btn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Employees Page -->
+        <div class="employees-page hidden" id="employees-page">
+            <h2 class="section-title">
+                <i class="fas fa-users"></i>
+                Все сотрудники
+            </h2>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Команда</label>
+                    <select class="filter-select">
+                        <option value="">Все команды</option>
+                        <option>Frontend</option>
+                        <option>Backend</option>
+                        <option>Mobile</option>
+                        <option>QA</option>
+                        <option>Дизайн</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Роль</label>
+                    <select class="filter-select">
+                        <option value="">Все роли</option>
+                        <option>Разработчик</option>
+                        <option>Тестировщик</option>
+                        <option>Менеджер</option>
+                        <option>Дизайнер</option>
+                        <option>Аналитик</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Зарплата</label>
+                    <select class="filter-select">
+                        <option value="">Любая</option>
+                        <option>До 100 000₽</option>
+                        <option>100 000 - 150 000₽</option>
+                        <option>150 000 - 200 000₽</option>
+                        <option>Более 200 000₽</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Дата найма</label>
+                    <select class="filter-select">
+                        <option value="">Любая</option>
+                        <option>Последние 3 месяца</option>
+                        <option>Последние 6 месяцев</option>
+                        <option>Последний год</option>
+                        <option>Более года</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="employees-grid">
+                {% for emp in employees %}
+                <div class="employee-card">
+                    <div class="employee-header">
+                        <div class="employee-avatar">{{ emp.first_name[0] }}{{ emp.last_name[0] }}</div>
+                        <div class="employee-info">
+                            <div class="employee-name">{{ emp.first_name }} {{ emp.last_name }}</div>
+                            <div class="employee-role">{{ emp.role }}</div>
+                            <div>{{ emp.team }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="employee-stats">
+                        <div class="employee-stat">
+                            <div class="stat-title">Зарплата</div>
+                            <div class="stat-value">{{ emp.salary }}₽</div>
+                        </div>
+                        <div class="employee-stat">
+                            <div class="stat-title">Дата найма</div>
+                            <div class="stat-value">{{ emp.hire_date }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="employee-actions">
+                        <button class="btn btn-danger" onclick="deleteEmployee({{emp.id}})">
+                            <i class="fas fa-trash"></i> Удалить
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Изменить
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="add-employee-form">
+                <h3 class="section-title">
+                    <i class="fas fa-user-plus"></i>
+                    Добавить нового сотрудника
+                </h3>
+                
+                <form id="add-form" class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Имя</label>
+                        <input type="text" class="form-control" name="first_name" placeholder="Иван" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Фамилия</label>
+                        <input type="text" class="form-control" name="last_name" placeholder="Петров" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Роль</label>
+                        <input list="roles" class="form-control" name="role" placeholder="Разработчик" required>
+                        <datalist id="roles">
+                            <option>Разработчик</option>
+                            <option>Тестировщик</option>
+                            <option>Менеджер</option>
+                            <option>Дизайнер</option>
+                            <option>Аналитик</option>
+                        </datalist>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Зарплата</label>
+                        <input type="number" class="form-control" name="salary" placeholder="150000" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Команда</label>
+                        <input list="teams" class="form-control" name="team" placeholder="Frontend" required>
+                        <datalist id="teams">
+                            <option>Backend</option>
+                            <option>Frontend</option>
+                            <option>DevOps</option>
+                            <option>QA</option>
+                            <option>Дизайн</option>
+                            <option>Маркетинг</option>
+                        </datalist>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Дата найма</label>
+                        <input type="date" class="form-control" name="hire_date" required>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-plus"></i> Добавить сотрудника
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Archive Page -->
+        <div class="employees-page hidden" id="archive-page">
+            <h2 class="section-title">
+                <i class="fas fa-archive"></i>
+                Архив уволенных сотрудников
+            </h2>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Причина увольнения</label>
+                    <select class="filter-select">
+                        <option value="">Все причины</option>
+                        <option>По собственному желанию</option>
+                        <option>Сокращение</option>
+                        <option>Не прошел испытательный срок</option>
+                        <option>Другое</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Дата увольнения</label>
+                    <select class="filter-select">
+                        <option value="">Любая</option>
+                        <option>Последние 3 месяца</option>
+                        <option>Последние 6 месяцев</option>
+                        <option>Последний год</option>
+                        <option>Более года</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="employees-grid">
+                <!-- Archived employees will be shown here -->
+                <div class="employee-card">
+                    <div class="employee-header">
+                        <div class="employee-avatar">ИП</div>
+                        <div class="employee-info">
+                            <div class="employee-name">Иван Петров</div>
+                            <div class="employee-role">Бывший Frontend разработчик</div>
+                            <div>Уволен 15.05.2023</div>
+                        </div>
+                    </div>
+                    
+                    <div class="employee-stats">
+                        <div class="employee-stat">
+                            <div class="stat-title">Последняя зарплата</div>
+                            <div class="stat-value">145 000₽</div>
+                        </div>
+                        <div class="employee-stat">
+                            <div class="stat-title">Стаж</div>
+                            <div class="stat-value">2 года 3 мес</div>
+                        </div>
+                    </div>
+                    
+                    <div class="employee-actions">
+                        <button class="btn">
+                            <i class="fas fa-redo"></i> Восстановить
+                        </button>
+                        <button class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Удалить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Salary Tracking Page -->
+        <div class="employees-page hidden" id="salary-page">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Отслеживание зарплат
+            </h2>
+            
+            <div class="chart-container">
+                <canvas id="salaryChart"></canvas>
+            </div>
+            
+            <div class="add-employee-form">
+                <h3 class="section-title">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Изменение зарплаты
+                </h3>
+                
+                <form class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Сотрудник</label>
+                        <select class="form-control" required>
+                            <option value="">Выберите сотрудника</option>
+                            <option>Иван Петров (Frontend)</option>
+                            <option>Мария Сидорова (Backend)</option>
+                            <option>Алексей Иванов (QA)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Текущая зарплата</label>
+                        <input type="text" class="form-control" value="150 000₽" disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Новая зарплата</label>
+                        <input type="number" class="form-control" placeholder="Введите сумму" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Дата изменения</label>
+                        <input type="date" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Причина изменения</label>
+                        <textarea class="form-control" rows="2" placeholder="Опишите причину изменения зарплаты" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-save"></i> Сохранить изменение
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Reports Page -->
+        <div class="reports-page hidden" id="reports-page">
+            <h2 class="section-title">
+                <i class="fas fa-file-alt"></i>
+                История изменений
+            </h2>
+            
+            <div class="reports-list">
+                <div class="report-item">
+                    <div class="report-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="report-content">
+                        <div class="report-title">Добавлен новый сотрудник</div>
+                        <div class="report-meta">
+                            <span>Алексей Волков</span>
+                            <span>Frontend разработчик</span>
+                            <span>Зарплата: 160 000₽</span>
+                        </div>
+                    </div>
+                    <div class="report-action">Подробнее</div>
+                </div>
+                
+                <div class="report-item">
+                    <div class="report-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="report-content">
+                        <div class="report-title">Изменена зарплата</div>
+                        <div class="report-meta">
+                            <span>Иван Петров</span>
+                            <span>Увеличение с 140 000₽ до 150 000₽</span>
+                            <span>Причина: Годовой пересмотр</span>
+                        </div>
+                    </div>
+                    <div class="report-action">Подробнее</div>
+                </div>
+                
+                <div class="report-item">
+                    <div class="report-icon">
+                        <i class="fas fa-archive"></i>
+                    </div>
+                    <div class="report-content">
+                        <div class="report-title">Сотрудник перемещен в архив</div>
+                        <div class="report-meta">
+                            <span>Ольга Смирнова</span>
+                            <span>Бывший QA инженер</span>
+                            <span>Причина: Собственное желание</span>
+                        </div>
+                    </div>
+                    <div class="report-action">Подробнее</div>
+                </div>
+                
+                <div class="report-item">
+                    <div class="report-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="report-content">
+                        <div class="report-title">Обновлена информация</div>
+                        <div class="report-meta">
+                            <span>Мария Сидорова</span>
+                            <span>Изменена роль: Senior Backend Developer</span>
+                            <span>Изменена команда: Backend Core</span>
+                        </div>
+                    </div>
+                    <div class="report-action">Подробнее</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            themeIcon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            
+            // Save preference
+            localStorage.setItem('hr-theme', newTheme);
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('hr-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeIcon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+
+        // Page navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.main-content > div');
+        
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Update active link
+                navLinks.forEach(item => item.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show corresponding page
+                const pageId = this.getAttribute('data-page');
+                const pageToShow = document.getElementById(`${pageId}-page`);
+                
+                pages.forEach(page => page.classList.add('hidden'));
+                pageToShow.classList.remove('hidden');
+                
+                // Update header title
+                const headerTitle = document.querySelector('.header-title');
+                headerTitle.textContent = this.querySelector('span').textContent;
+                
+                // Initialize charts on salary page
+                if (pageId === 'salary') {
+                    initSalaryChart();
+                }
+            });
+        });
+
+        // Initialize salary chart
+        function initSalaryChart() {
+            const ctx = document.getElementById('salaryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+                    datasets: [{
+                        label: 'Средняя зарплата',
+                        data: [125, 128, 130, 132, 135, 138, 140, 142, 145, 148, 150, 152],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }, {
+                        label: 'Общая зарплата',
+                        data: [7800, 7900, 8100, 8300, 8500, 8700, 8900, 9000, 9200, 9400, 9600, 9800],
+                        borderColor: '#7209b7',
+                        backgroundColor: 'rgba(114, 9, 183, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Тысячи ₽'
+                            }
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Тысячи ₽'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add employee
+        document.getElementById('add-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<div class="spinner"></div> Добавление...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Check for duplicates
+                const employees = document.querySelectorAll('.employee-card');
+                for (const emp of employees) {
+                    const name = emp.querySelector('.employee-name').textContent;
+                    const newName = `${formData.get('first_name')} ${formData.get('last_name')}`;
+                    if (name === newName) {
+                        throw new Error('Сотрудник с таким именем уже существует');
+                    }
+                }
+                
+                // Send request
+                const res = await fetch('/employees/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!res.ok) {
+                    const error = await res.json();
+                    throw new Error(error.message || 'Ошибка сервера');
+                }
+                
+                // Update UI
+                const data = await res.json();
+                updateEmployeeCount(1);
+                location.reload();
+                
+            } catch (error) {
+                alert(`Ошибка: ${error.message}`);
+            } finally {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Delete employee
+        async function deleteEmployee(id) {
+            if (!confirm('Вы уверены, что хотите удалить сотрудника?')) return;
+            
+            try {
+                const res = await fetch(`/employees/${id}`, { method: 'DELETE' });
+                
+                if (!res.ok) {
+                    const error = await res.json();
+                    throw new Error(error.message || 'Ошибка удаления');
+                }
+                
+                // Remove from UI
+                const card = document.getElementById(`emp-${id}`).closest('.employee-card');
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(100px)';
+                
+                setTimeout(() => {
+                    card.remove();
+                    updateEmployeeCount(-1);
+                }, 300);
+                
+            } catch (error) {
+                alert(`Ошибка: ${error.message}`);
+            }
+        }
+
+        // Chat functionality
+        const chatLog = document.getElementById('chat-log');
+        
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'message user-message' : 'message ai-message';
+            messageDiv.textContent = text;
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, true);
+            input.value = '';
+            
+            // Show loading in send button
+            const sendBtn = document.getElementById('chat-send');
+            sendBtn.innerHTML = '<div class="spinner"></div>';
+            sendBtn.disabled = true;
+            
+            try {
+                // Send to server
+                const res = await fetch('/chat/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: message })
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Ошибка получения ответа');
+                }
+                
+                const data = await res.json();
+                addMessage(data.ai_response);
+                
+            } catch (error) {
+                addMessage('Извините, произошла ошибка. Попробуйте позже.');
+            } finally {
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Send message on Enter
+        document.getElementById('chat-input').addEventListener('keypress', e => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Update employee counter
+        function updateEmployeeCount(change) {
+            const countElement = document.querySelector('.metric-value');
+            let count = parseInt(countElement.textContent) || 0;
+            count += change;
+            countElement.textContent = count;
+        }
+
+        // Initialize salary chart if on salary page
+        if (window.location.hash === '#salary') {
+            setTimeout(initSalaryChart, 300);
+        }
+    </script>
+</body>
+</html>
